@@ -333,28 +333,14 @@ function addXcodeSpecs()
 	local xcspecFileNamePrefix
 	
 	iosSdkPlatformPath=`getSdkProperty $sdk PlatformPath`
-	
-	# get *.xcspec filename prefix
-	xcspecFileNamePrefix="$platformName"	
-	[[ ! $xcspecFileNamePrefix =~ "Simulator" ]] || xcspecFileNamePrefix="iPhone Simulator "
 
-	# backup *PackageTypes.xcspec
-	iosPackagesTypesXCSpec="$iosSdkPlatformPath/Developer/Library/Xcode/Specifications/${xcspecFileNamePrefix}PackageTypes.xcspec"	
-	requireFile "$iosPackagesTypesXCSpec" false
-	requireBackup "$iosPackagesTypesXCSpec"
+	iosXCSpecFile="$iosSdkPlatformPath/Developer/Library/Xcode/PrivatePlugIns/IDEiOSPlatformSupportCore.ideplugin/Contents/Resources/Device.xcspec"
 
-	# modify *PackageTypes.xcspec
-	addXcodeSpec "$iosPackagesTypesXCSpec" "com.apple.package-type.mach-o-executable" '{"ProductReference":{"IsLaunchable":"YES","FileType":"compiled.mach-o.executable","Name":"\$(EXECUTABLE_NAME)"},"DefaultBuildSettings":{"EXECUTABLE_NAME":"\$(EXECUTABLE_PREFIX)\$(PRODUCT_NAME)\$(EXECUTABLE_VARIANT_SUFFIX)\$(EXECUTABLE_SUFFIX)","EXECUTABLE_PATH":"\$(EXECUTABLE_NAME)","EXECUTABLE_SUFFIX":"","EXECUTABLE_PREFIX":""},"Type":"PackageType","Name":"Mach-O Executable","Identifier":"com.apple.package-type.mach-o-executable","Description":"Mach-O executable"}'
-	addXcodeSpec "$iosPackagesTypesXCSpec" "com.apple.package-type.mach-o-dylib" '{"ProductReference":{"IsLaunchable":"NO","FileType":"compiled.mach-o.dylib","Name":"\$(EXECUTABLE_NAME)"},"DefaultBuildSettings":{"EXECUTABLE_NAME":"\$(EXECUTABLE_PREFIX)\$(PRODUCT_NAME)\$(EXECUTABLE_VARIANT_SUFFIX)\$(EXECUTABLE_SUFFIX)","EXECUTABLE_PATH":"\$(EXECUTABLE_NAME)","EXECUTABLE_SUFFIX":"","EXECUTABLE_PREFIX":""},"Type":"PackageType","Name":"Mach-O Dynamic Library","Identifier":"com.apple.package-type.mach-o-dylib","Description":"Mach-O dynamic library"}'
+	requireFile "$iosXCSpecFile" false
+	requireBackup "$iosXCSpecFile"
 
-	# backup *ProductTypes.xcspec
-	iosProductTypesXCSpec="$iosSdkPlatformPath/Developer/Library/Xcode/Specifications/${xcspecFileNamePrefix}ProductTypes.xcspec"
-	requireFile "$iosProductTypesXCSpec" false
-	requireBackup "$iosProductTypesXCSpec"
-
-	# modify *ProductTypes.xcspec
-	addXcodeSpec "$iosProductTypesXCSpec" "com.apple.product-type.tool" '{"IconNamePrefix":"TargetExecutable","PackageTypes":["com.apple.package-type.mach-o-executable"],"Name":"Command-line Tool","Type":"ProductType","DefaultTargetName":"Command-line Tool","DefaultBuildProperties":{"REZ_EXECUTABLE":"YES","LIBRARY_FLAG_NOSPACE":"YES","FULL_PRODUCT_NAME":"\$(EXECUTABLE_NAME)","INSTALL_PATH":"\/usr\/bin","CODE_SIGNING_ALLOWED":"YES","GCC_INLINES_ARE_PRIVATE_EXTERN":"YES","GCC_SYMBOLS_PRIVATE_EXTERN":"YES","GCC_DYNAMIC_NO_PIC":"NO","FRAMEWORK_FLAG_PREFIX":"-framework","ENTITLEMENTS_ALLOWED":"YES","STRIP_STYLE":"all","EXECUTABLE_PREFIX":"","MACH_O_TYPE":"mh_execute","EXECUTABLE_SUFFIX":"","LIBRARY_FLAG_PREFIX":"-l"},"Identifier":"com.apple.product-type.tool","Class":"PBXToolProductType","Description":"Standalone command-line tool"}'
-	addXcodeSpec "$iosProductTypesXCSpec" "com.apple.product-type.library.dynamic" '{"IconNamePrefix":"TargetLibrary","PackageTypes":["com.apple.package-type.mach-o-dylib"],"Description":"Dynamic library","Type":"ProductType","DefaultBuildProperties":{"EXECUTABLE_SUFFIX":".\$(EXECUTABLE_EXTENSION)","PRIVATE_HEADERS_FOLDER_PATH":"\/usr\/include","REZ_EXECUTABLE":"YES","FULL_PRODUCT_NAME":"\$(EXECUTABLE_NAME)","LD_DYLIB_INSTALL_NAME":"\$(DYLIB_INSTALL_NAME_BASE:standardizepath)\/\$(EXECUTABLE_PATH)","DYLIB_COMPATIBILITY_VERSION":"1","INSTALL_PATH":"\/usr\/lib","FRAMEWORK_FLAG_PREFIX":"-framework","LIBRARY_FLAG_NOSPACE":"YES","GCC_INLINES_ARE_PRIVATE_EXTERN":"YES","CODE_SIGNING_ALLOWED":"YES","STRIP_STYLE":"debugging","EXECUTABLE_EXTENSION":"dylib","MACH_O_TYPE":"mh_dylib","DYLIB_CURRENT_VERSION":"1","PUBLIC_HEADERS_FOLDER_PATH":"\/usr\/include","DYLIB_INSTALL_NAME_BASE":"\$(INSTALL_PATH)","LIBRARY_FLAG_PREFIX":"-l"},"DefaultTargetName":"Dynamic Library","Class":"PBXDynamicLibraryProductType","Name":"Dynamic Library","Identifier":"com.apple.product-type.library.dynamic"}'
+	addXcodeSpec "$iosXCSpecFile" "com.apple.package-type.mach-o-executable" '{"DefaultBuildSettings":{"EXECUTABLE_PATH":"$(EXECUTABLE_NAME)","EXECUTABLE_PREFIX":"","EXECUTABLE_SUFFIX":"","EXECUTABLE_NAME":"$(EXECUTABLE_PREFIX)$(PRODUCT_NAME)$(EXECUTABLE_VARIANT_SUFFIX)$(EXECUTABLE_SUFFIX)"},"Identifier":"com.apple.package-type.mach-o-executable","Type":"PackageType","Name":"Mach-O Executable","Description":"Mach-O executable","ProductReference":{"FileType":"compiled.mach-o.executable","Name":"$(EXECUTABLE_NAME)","IsLaunchable":"YES"}}'
+	addXcodeSpec "$iosXCSpecFile" "com.apple.product-type.tool" '{"IconNamePrefix":"TargetExecutable","DefaultBuildProperties":{"REZ_EXECUTABLE":"YES","FULL_PRODUCT_NAME":"$(EXECUTABLE_NAME)","LIBRARY_FLAG_NOSPACE":"YES","FRAMEWORK_FLAG_PREFIX":"-framework","INSTALL_PATH":"\/usr\/local\/bin","GCC_INLINES_ARE_PRIVATE_EXTERN":"YES","GCC_DYNAMIC_NO_PIC":"NO","GCC_SYMBOLS_PRIVATE_EXTERN":"YES","CODE_SIGNING_ALLOWED":"YES","STRIP_STYLE":"all","EXECUTABLE_PREFIX":"","MACH_O_TYPE":"mh_execute","EXECUTABLE_SUFFIX":"","LIBRARY_FLAG_PREFIX":"-l"},"PackageTypes":["com.apple.package-type.mach-o-executable"],"Type":"ProductType","DefaultTargetName":"Command-line Tool","Name":"Command-line Tool","Identifier":"com.apple.product-type.tool","Description":"Standalone command-line tool","Class":"PBXToolProductType"}'
 }
 
 function addXcodeSpec()
@@ -445,7 +431,8 @@ function createSdkPrivateHeaderSymlinks()
 	privateFWsDir="$iosSdkPath/System/Library/PrivateFrameworks"
 	
 	[[ -d "$privateFWsDir" ]] || \
-		panic 1 "PrivateFramework directory not found: $privateFWsDir"
+		echo "PrivateFramework directory not found: $privateFWsDir"
+		return
 
 	privateFwBinaries=($(find "$privateFWsDir" -type f -perm +111 -ipath "*.framework/*"))
 	
