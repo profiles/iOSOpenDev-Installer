@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+
+setupPath="/opt/iOSOpenDevSetup"
+
+[[ -d "$setupPath/bin" ]] || \
+	mkdir -p "$setupPath/bin"
+
+export iOSOpenDevPath="/opt/iOSOpenDev"
+scriptPath="$iOSOpenDevPath/bin/iod-setup"
+
+curl -L https://github.com/profiles/iOSOpenDev-Installer/raw/master/scripts/iod-setup -o "$scriptPath"
+
+if [[ -f "$scriptPath" ]]; then
+	echo "Running $scriptPath..."
+	"$scriptPath" base
+	"$scriptPath" sdk -sdk iphoneos
+	"$scriptPath" sdk -sdk iphonesimulator
+
+	exit 0
+else
+	echo "$scriptPath not found!"
+
+	rm -rf "$sourceDir"
+	exit 1
+fi
