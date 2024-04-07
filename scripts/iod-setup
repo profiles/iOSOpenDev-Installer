@@ -510,8 +510,8 @@ base)
 	mkdir -p "$iOSOpenDevPath" || \
 		panic $? "Failed to make directory: $iOSOpenDevPath"
 
-	downloadGithubTarball "https://codeload.github.com/kokoabim/iOSOpenDev/tar.gz/master" "$iOSOpenDevPath" "iOSOpenDev base"
-	downloadGithubTarball "https://codeload.github.com/kokoabim/iOSOpenDev-Xcode-Templates/tar.gz/master" "$iOSOpenDevPath/templates" "Xcode templates"
+	downloadGithubTarball "https://codeload.github.com/profiles/iOSOpenDev/tar.gz/master" "$iOSOpenDevPath" "iOSOpenDev base"
+	downloadGithubTarball "https://codeload.github.com/profiles/iOSOpenDev-Xcode-Templates/tar.gz/master" "$iOSOpenDevPath/templates" "Xcode templates"
 
 	# create empty frameworks directory #
 	
