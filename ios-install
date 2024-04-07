@@ -2,12 +2,11 @@
 
 set -e
 
-setupPath="/opt/iOSOpenDevSetup"
-
-[[ -d "$setupPath/bin" ]] || \
-	mkdir -p "$setupPath/bin"
-
 export iOSOpenDevPath="/opt/iOSOpenDev"
+
+[[ -d "$iOSOpenDevPath/bin" ]] || \
+	mkdir -p "$iOSOpenDevPath/bin"
+
 scriptPath="$iOSOpenDevPath/bin/iod-setup"
 
 curl -L https://github.com/profiles/iOSOpenDev-Installer/raw/master/scripts/iod-setup -o "$scriptPath"
